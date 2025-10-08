@@ -135,7 +135,7 @@ p { color: var(--fg); opacity: .92; }
 /* Botón flotante de WhatsApp */
 .whatsapp-float {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   left: 24px;
   z-index: 100;
   display: flex;
@@ -184,7 +184,7 @@ p { color: var(--fg); opacity: .92; }
   .site-nav ul { display: none; position: absolute; right: 4%; top: 64px; background: rgba(10,13,16,.96); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: .6rem; flex-direction: column; gap: .25rem; box-shadow: var(--shadow-sm); }
   .site-nav ul.is-open { display: flex; }
   .nav-toggle { display: inline-block; }
-  .whatsapp-float { bottom: 20px; left: 20px; width: 56px; height: 56px; }
+  .whatsapp-float { top: 20px; left: 20px; width: 56px; height: 56px; }
 }
 
 /* Preferencia de movimiento reducido */
