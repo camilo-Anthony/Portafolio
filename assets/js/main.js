@@ -248,6 +248,7 @@
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
   }
+}
 
   // Esperar a que el DOM esté listo
   if (document.readyState === 'loading') {
