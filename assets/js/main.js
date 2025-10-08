@@ -2,70 +2,8 @@
   const $ = (sel, parent = document) => parent.querySelector(sel);
   const $$ = (sel, parent = document) => Array.from(parent.querySelectorAll(sel));
 
-  // Animación de tipeo para el h1
-  function initTypingAnimation() {
-    const typingElement = $('.typing-text');
-    const cursor = $('.cursor');
-    console.log('Elementos encontrados:', typingElement, cursor);
-    
-    if (!typingElement || !cursor) {
-      console.log('Elementos de tipeo no encontrados');
-      return;
-    }
-
-    const fullText = 'Hola, soy Camilo Anthony, diseñador y programador web';
-    let currentIndex = 0;
-    let isDeleting = false;
-    let currentText = '';
-    
-    function typeText() {
-      if (isDeleting) {
-        currentText = fullText.substring(0, currentIndex - 1);
-        currentIndex--;
-      } else {
-        currentText = fullText.substring(0, currentIndex + 1);
-        currentIndex++;
-      }
-      
-      // Aplicar formato especial para "Camilo Anthony"
-      const formattedText = currentText.replace(
-        'Camilo Anthony', 
-        '<span class="accent">Camilo Anthony</span>'
-      );
-      
-      typingElement.innerHTML = formattedText;
-      
-      let typeSpeed = isDeleting ? 50 : 100;
-      
-      // Pausa más larga al final
-      if (!isDeleting && currentIndex === fullText.length) {
-        typeSpeed = 2000;
-        setTimeout(() => {
-          isDeleting = true;
-          typeText();
-        }, typeSpeed);
-        return;
-      }
-      
-      // Reiniciar cuando termine de borrar
-      if (isDeleting && currentIndex === 0) {
-        isDeleting = false;
-        typeSpeed = 500;
-      }
-      
-      setTimeout(typeText, typeSpeed);
-    }
-    
-    console.log('Iniciando animación de tipeo...');
-    // Iniciar inmediatamente
-    typeText();
-  }
-
   // Función principal que se ejecuta cuando el DOM esté listo
   function init() {
-    console.log('Iniciando init()...');
-    // Inicializar animación de tipeo
-    initTypingAnimation();
     // Año en footer
     const yearEl = $('#year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -148,7 +86,6 @@
     // Canvas de partículas/líneas sutiles
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-    console.log('Canvas:', canvas, 'Context:', ctx);
     let width = 0, height = 0;
     let points = [];
     let animationId = null;

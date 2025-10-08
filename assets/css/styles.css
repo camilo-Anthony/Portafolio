@@ -143,17 +143,6 @@ p { color: var(--fg); opacity: .92; }
 /* Elevar contenido por encima del canvas */
 main, .site-footer { position: relative; z-index: 1; }
 
-/* Animación de cursor parpadeante */
-.cursor {
-  animation: blink 1s infinite;
-  color: var(--accent);
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
 /* Estado de foco visible */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
