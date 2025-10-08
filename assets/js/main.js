@@ -14,7 +14,9 @@
       const isOpen = menu.classList.toggle('is-open');
       navToggle.setAttribute('aria-expanded', String(isOpen));
     });
-    $$('#menu a').forEach((a) => a.addEventListener('click', () => menu.classList.remove('is-open')));
+    // Mantener el menú abierto tras hacer clic en enlaces
+    // Si más adelante quieres cerrarlo al navegar, reactiva la línea siguiente
+    // $$('#menu a').forEach((a) => a.addEventListener('click', () => menu.classList.remove('is-open')));
   }
 
   // Scroll suave
