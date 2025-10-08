@@ -61,95 +61,101 @@
     typeText();
   }
 
-  // Inicializar animación de tipeo inmediatamente
-  initTypingAnimation();
-
-  // Año en footer
-  const yearEl = $('#year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  // Menú móvil
-  const navToggle = $('.nav-toggle');
-  const menu = $('#menu');
-  if (navToggle && menu) {
-    navToggle.addEventListener('click', () => {
-      const isOpen = menu.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', String(isOpen));
-      // Bloquear scroll del body cuando el menú esté abierto
-      document.body.classList.toggle('nav-open', isOpen);
-    });
-    // Cerrar menú al hacer clic en enlaces
-    $$('#menu a').forEach((a) => a.addEventListener('click', () => {
-      menu.classList.remove('is-open');
-      navToggle.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('nav-open');
-    }));
+  // Inicializar animación de tipeo cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTypingAnimation);
+  } else {
+    initTypingAnimation();
   }
 
-  // Scroll suave
-  $$('#menu a, .cta a, .brand').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (href && href.startsWith('#')) {
-        e.preventDefault();
-        const target = $(href);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
+  // Función principal que se ejecuta cuando el DOM esté listo
+  function init() {
+    // Año en footer
+    const yearEl = $('#year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // Reveal on scroll
-  const revealEls = $$('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        io.unobserve(entry.target);
-      }
+    // Menú móvil
+    const navToggle = $('.nav-toggle');
+    const menu = $('#menu');
+    if (navToggle && menu) {
+      navToggle.addEventListener('click', () => {
+        const isOpen = menu.classList.toggle('is-open');
+        navToggle.setAttribute('aria-expanded', String(isOpen));
+        // Bloquear scroll del body cuando el menú esté abierto
+        document.body.classList.toggle('nav-open', isOpen);
+      });
+      // Cerrar menú al hacer clic en enlaces
+      $$('#menu a').forEach((a) => a.addEventListener('click', () => {
+        menu.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('nav-open');
+      }));
     }
-  }, { threshold: 0.12 });
-  revealEls.forEach((el) => io.observe(el));
 
-  // Revelado escalonado por sección
-  const sectionsForStagger = ['#habilidades .skills', '#proyectos .projects-grid', '#servicios .services-grid'];
-  sectionsForStagger.map((sel) => $$(sel)).flat().forEach((grid) => {
-    const children = Array.from(grid.children);
-    children.forEach((child, idx) => {
-      child.style.transitionDelay = `${Math.min(idx * 60, 400)}ms`;
-      child.classList.add('reveal');
-      io.observe(child);
+    // Scroll suave
+    $$('#menu a, .cta a, .brand').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          const target = $(href);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
     });
-  });
 
-  // Scrollspy con aria-current
-  const sections = ['#inicio', '#sobre-mi', '#servicios', '#habilidades', '#proyectos', '#experiencia', '#contacto']
-    .map((id) => $(id)).filter(Boolean);
-  const navLinks = $$('#menu a');
-  const spy = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const id = '#' + entry.target.id;
-      const link = navLinks.find((a) => a.getAttribute('href') === id);
-      if (link) {
+    // Reveal on scroll
+    const revealEls = $$('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
         if (entry.isIntersecting) {
-          navLinks.forEach((l) => l.removeAttribute('aria-current'));
-          link.setAttribute('aria-current', 'page');
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
         }
       }
+    }, { threshold: 0.12 });
+    revealEls.forEach((el) => io.observe(el));
+
+    // Revelado escalonado por sección
+    const sectionsForStagger = ['#habilidades .skills', '#proyectos .projects-grid', '#servicios .services-grid'];
+    sectionsForStagger.map((sel) => $$(sel)).flat().forEach((grid) => {
+      const children = Array.from(grid.children);
+      children.forEach((child, idx) => {
+        child.style.transitionDelay = `${Math.min(idx * 60, 400)}ms`;
+        child.classList.add('reveal');
+        io.observe(child);
+      });
     });
-  }, { rootMargin: '-40% 0px -50% 0px', threshold: 0.1 });
-  sections.forEach((sec) => spy.observe(sec));
 
-  // Canvas de partículas/líneas sutiles
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-  let width = 0, height = 0;
-  let points = [];
-  let animationId = null;
-  let particleColor = 'rgba(0,255,136,0.7)';
-  let lineColorBase = '#00d5ff';
-  let parallaxOffsetY = 0;
+    // Scrollspy con aria-current
+    const sections = ['#inicio', '#sobre-mi', '#servicios', '#habilidades', '#proyectos', '#experiencia', '#contacto']
+      .map((id) => $(id)).filter(Boolean);
+    const navLinks = $$('#menu a');
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const id = '#' + entry.target.id;
+        const link = navLinks.find((a) => a.getAttribute('href') === id);
+        if (link) {
+          if (entry.isIntersecting) {
+            navLinks.forEach((l) => l.removeAttribute('aria-current'));
+            link.setAttribute('aria-current', 'page');
+          }
+        }
+      });
+    }, { rootMargin: '-40% 0px -50% 0px', threshold: 0.1 });
+    sections.forEach((sec) => spy.observe(sec));
 
-  // Toggle de acento (verde <-> cian) con persistencia
+    // Canvas de partículas/líneas sutiles
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+    let width = 0, height = 0;
+    let points = [];
+    let animationId = null;
+    let particleColor = 'rgba(0,255,136,0.7)';
+    let lineColorBase = '#00d5ff';
+    let parallaxOffsetY = 0;
+
+    // Toggle de acento (verde <-> cian) con persistencia
   const ACCENT_KEY = 'accent-color';
   const accentBtn = $('#accent-toggle');
   const rootStyle = document.documentElement.style;
@@ -303,6 +309,13 @@
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Esperar a que el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();
 
