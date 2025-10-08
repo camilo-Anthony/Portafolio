@@ -136,14 +136,14 @@ p { color: var(--fg); opacity: .92; }
 .whatsapp-float {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  left: 24px;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #25D366, #128C7E);
+  background: #25D366;
   color: #fff;
   border-radius: 50%;
   box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4), 0 0 30px rgba(37, 211, 102, 0.2);
@@ -184,7 +184,7 @@ p { color: var(--fg); opacity: .92; }
   .site-nav ul { display: none; position: absolute; right: 4%; top: 64px; background: rgba(10,13,16,.96); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: .6rem; flex-direction: column; gap: .25rem; box-shadow: var(--shadow-sm); }
   .site-nav ul.is-open { display: flex; }
   .nav-toggle { display: inline-block; }
-  .whatsapp-float { bottom: 20px; right: 20px; width: 56px; height: 56px; }
+  .whatsapp-float { bottom: 20px; left: 20px; width: 56px; height: 56px; }
 }
 
 /* Preferencia de movimiento reducido */
