@@ -44,7 +44,7 @@ p { color: var(--fg); opacity: .92; }
 .section { padding: clamp(64px, 8vw, 120px) 0; position: relative; }
 
 /* Header y navegación */
-.site-header { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); background: rgba(10,13,16,0.6); border-bottom: 1px solid rgba(255,255,255,0.06); }
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; backdrop-filter: blur(8px); background: rgba(10,13,16,0.6); border-bottom: 1px solid rgba(255,255,255,0.06); }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: .8rem 0; }
 .site-header.is-shrink { background: rgba(10,13,16,0.75); border-bottom-color: rgba(255,255,255,0.08); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
 .site-header.is-shrink .nav { padding: .5rem 0; }

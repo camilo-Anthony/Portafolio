@@ -223,6 +223,15 @@
   // Header shrink al hacer scroll
   const header = $('.site-header');
   if (header) {
+    // Ajustar padding-top del body para evitar solapamiento
+    function applyBodyPadding() {
+      const h = header.getBoundingClientRect().height;
+      document.body.style.paddingTop = h + 'px';
+    }
+    applyBodyPadding();
+    window.addEventListener('resize', applyBodyPadding);
+
+    // Mantener el header visible sin ocultarlo; solo aplicar estado visual shrink
     const onScroll = () => {
       if (window.scrollY > 12) header.classList.add('is-shrink');
       else header.classList.remove('is-shrink');
