@@ -13,7 +13,7 @@
       return;
     }
 
-    const fullText = 'Hola, soy Camilo Anthony,\ndiseñador y programador web';
+    const fullText = 'Hola, soy Camilo Anthony, diseñador y programador web';
     let currentIndex = 0;
     let isDeleting = false;
     let currentText = '';
@@ -63,6 +63,7 @@
 
   // Función principal que se ejecuta cuando el DOM esté listo
   function init() {
+    console.log('Iniciando init()...');
     // Inicializar animación de tipeo
     initTypingAnimation();
     // Año en footer
@@ -147,6 +148,7 @@
     // Canvas de partículas/líneas sutiles
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+    console.log('Canvas:', canvas, 'Context:', ctx);
     let width = 0, height = 0;
     let points = [];
     let animationId = null;
