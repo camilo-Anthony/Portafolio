@@ -108,8 +108,12 @@
           io.unobserve(entry.target);
         }
       }
-    }, { threshold: 0.12 });
+    }, { threshold: 0.05 });
     revealEls.forEach((el) => io.observe(el));
+    
+    // Mostrar elementos del hero inmediatamente
+    const heroReveals = $$('#inicio .reveal');
+    heroReveals.forEach((el) => el.classList.add('is-visible'));
 
     // Revelado escalonado por sección
     const sectionsForStagger = ['#habilidades .skills', '#proyectos .projects-grid', '#servicios .services-grid'];
