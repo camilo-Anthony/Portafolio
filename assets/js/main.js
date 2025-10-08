@@ -16,9 +16,12 @@
       // Bloquear scroll del body cuando el menú esté abierto
       document.body.classList.toggle('nav-open', isOpen);
     });
-    // Mantener el menú abierto tras hacer clic en enlaces
-    // Si más adelante quieres cerrarlo al navegar, reactiva la línea siguiente
-    // $$('#menu a').forEach((a) => a.addEventListener('click', () => menu.classList.remove('is-open')));
+    // Cerrar menú al hacer clic en enlaces
+    $$('#menu a').forEach((a) => a.addEventListener('click', () => {
+      menu.classList.remove('is-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-open');
+    }));
   }
 
   // Scroll suave
