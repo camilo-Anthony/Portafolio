@@ -199,6 +199,10 @@ p { color: var(--fg); opacity: .92; }
   .site-nav ul.is-open { display: flex; }
   .nav-toggle { display: inline-block; }
   .whatsapp-float { bottom: 20px; right: 20px; width: 56px; height: 56px; }
+  /* Fijar menú en móvil y bloquear scroll de fondo */
+  body.nav-open { overflow: hidden; }
+  .site-nav { position: relative; }
+  .site-nav ul.is-open { position: fixed; inset: 64px 4% auto 4%; max-height: calc(100vh - 80px); overflow: auto; }
 }
 
 /* Preferencia de movimiento reducido */

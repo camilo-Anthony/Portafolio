@@ -13,6 +13,8 @@
     navToggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('is-open');
       navToggle.setAttribute('aria-expanded', String(isOpen));
+      // Bloquear scroll del body cuando el menú esté abierto
+      document.body.classList.toggle('nav-open', isOpen);
     });
     // Mantener el menú abierto tras hacer clic en enlaces
     // Si más adelante quieres cerrarlo al navegar, reactiva la línea siguiente
