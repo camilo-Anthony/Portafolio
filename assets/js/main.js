@@ -61,15 +61,10 @@
     typeText();
   }
 
-  // Inicializar animación de tipeo cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTypingAnimation);
-  } else {
-    initTypingAnimation();
-  }
-
   // Función principal que se ejecuta cuando el DOM esté listo
   function init() {
+    // Inicializar animación de tipeo
+    initTypingAnimation();
     // Año en footer
     const yearEl = $('#year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
