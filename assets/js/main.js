@@ -6,7 +6,12 @@
   function initTypingAnimation() {
     const typingElement = $('.typing-text');
     const cursor = $('.cursor');
-    if (!typingElement || !cursor) return;
+    console.log('Elementos encontrados:', typingElement, cursor);
+    
+    if (!typingElement || !cursor) {
+      console.log('Elementos de tipeo no encontrados');
+      return;
+    }
 
     const fullText = 'Hola, soy Camilo Anthony,\ndiseñador y programador web';
     let currentIndex = 0;
@@ -51,9 +56,13 @@
       setTimeout(typeText, typeSpeed);
     }
     
-    // Iniciar después de un pequeño delay
-    setTimeout(typeText, 1000);
+    console.log('Iniciando animación de tipeo...');
+    // Iniciar inmediatamente
+    typeText();
   }
+
+  // Inicializar animación de tipeo inmediatamente
+  initTypingAnimation();
 
   // Año en footer
   const yearEl = $('#year');
@@ -259,9 +268,6 @@
   } else {
     console.log('Canvas no encontrado o contexto no disponible');
   }
-
-  // Inicializar animación de tipeo
-  initTypingAnimation();
 
   // Ripple en clicks de botones y enlaces
   function attachRipple(el) {
