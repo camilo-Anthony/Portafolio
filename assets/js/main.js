@@ -41,6 +41,17 @@
   }, { threshold: 0.12 });
   revealEls.forEach((el) => io.observe(el));
 
+  // Revelado escalonado por sección
+  const sectionsForStagger = ['#habilidades .skills', '#proyectos .projects-grid', '#servicios .services-grid'];
+  sectionsForStagger.map((sel) => $$(sel)).flat().forEach((grid) => {
+    const children = Array.from(grid.children);
+    children.forEach((child, idx) => {
+      child.style.transitionDelay = `${Math.min(idx * 60, 400)}ms`;
+      child.classList.add('reveal');
+      io.observe(child);
+    });
+  });
+
   // Scrollspy con aria-current
   const sections = ['#inicio', '#sobre-mi', '#servicios', '#habilidades', '#proyectos', '#experiencia', '#contacto']
     .map((id) => $(id)).filter(Boolean);
@@ -67,6 +78,7 @@
   let animationId = null;
   let particleColor = 'rgba(0,255,136,0.7)';
   let lineColorBase = '#00d5ff';
+  let parallaxOffsetY = 0;
 
   // Toggle de acento (verde <-> cian) con persistencia
   const ACCENT_KEY = 'accent-color';
@@ -125,6 +137,8 @@
   function step() {
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.translate(0, parallaxOffsetY);
     
     // Partículas
     ctx.fillStyle = particleColor;
@@ -156,6 +170,7 @@
         }
       }
     }
+    ctx.restore();
     animationId = requestAnimationFrame(step);
   }
 
@@ -164,6 +179,14 @@
     console.log('Canvas encontrado, iniciando animación...');
     resize();
     window.addEventListener('resize', resize);
+    // Parallax sutil con scroll
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const current = window.scrollY;
+      const delta = current - lastScrollY;
+      lastScrollY = current;
+      parallaxOffsetY = Math.max(-40, Math.min(40, parallaxOffsetY + delta * 0.05));
+    }, { passive: true });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         if (animationId) cancelAnimationFrame(animationId);
@@ -175,6 +198,33 @@
     step();
   } else {
     console.log('Canvas no encontrado o contexto no disponible');
+  }
+
+  // Ripple en clicks de botones y enlaces
+  function attachRipple(el) {
+    el.addEventListener('click', (e) => {
+      const rect = el.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = `${e.clientX - rect.left}px`;
+      ripple.style.top = `${e.clientY - rect.top}px`;
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = `${size}px`;
+      el.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 700);
+    });
+  }
+  [...$$('.btn'), ...$$('.site-nav a')].forEach(attachRipple);
+
+  // Header shrink al hacer scroll
+  const header = $('.site-header');
+  if (header) {
+    const onScroll = () => {
+      if (window.scrollY > 12) header.classList.add('is-shrink');
+      else header.classList.remove('is-shrink');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 })();
 
