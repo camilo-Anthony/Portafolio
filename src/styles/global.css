@@ -1,0 +1,244 @@
+@import "tailwindcss";
+
+/* 
+  Tailwind CSS v4 @theme directive (warning is expected)
+*/
+@theme {
+  --color-bg: #000000;
+  --color-black: #000000;
+  --color-surface: #0A0A0A;
+  --color-text: #E5E7EB;
+  --color-muted: #9CA3AF;
+  --color-accent: #6366F1;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+/* ========================================
+   DARK MODE (Default)
+   ======================================== */
+
+:root {
+  color-scheme: dark;
+}
+
+.dark {
+  --bg: #000000;
+  --surface: #0A0A0A;
+  --text: #E5E7EB;
+  --text-strong: #FFFFFF;
+  --muted: #6B7280;
+  --accent: #6366F1;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --btn-primary-bg: #FFFFFF;
+  --btn-primary-text: #000000;
+  color-scheme: dark;
+}
+
+/* ========================================
+   LIGHT MODE (Softer, warmer tones)
+   ======================================== */
+
+.light {
+  --bg: #F8F9FA;
+  --surface: #FFFFFF;
+  --text: #374151;
+  --text-strong: #111827;
+  --muted: #6B7280;
+  --accent: #4F46E5;
+  --card-bg: #FFFFFF;
+  --card-border: #E5E7EB;
+  --btn-primary-bg: #111827;
+  --btn-primary-text: #FFFFFF;
+  color-scheme: light;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  scroll-behavior: smooth;
+}
+
+/* ========================================
+   LIGHT MODE OVERRIDES
+   ======================================== */
+
+/* --- Backgrounds --- */
+.light .bg-bg {
+  background-color: var(--bg) !important;
+}
+
+.light .bg-black {
+  background-color: var(--bg) !important;
+}
+
+.light .bg-white\/5,
+.light .bg-white\/\[0\.03\],
+.light .bg-white\/\[0\.07\] {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.light .bg-bg\/60 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.light .bg-bg\/80 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.light .bg-bg\/95 {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* --- Text Colors --- */
+.light .text-white {
+  color: var(--text-strong) !important;
+}
+
+.light .text-text {
+  color: var(--text) !important;
+}
+
+.light .text-muted {
+  color: var(--muted) !important;
+}
+
+/* --- Gradient Text Fix (Critical!) --- */
+.light .bg-gradient-to-br.from-white,
+.light .bg-gradient-to-r.from-white,
+.light .text-transparent.bg-clip-text {
+  background: linear-gradient(135deg, var(--text-strong) 0%, var(--muted) 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* --- Borders --- */
+.light .border-white\/5,
+.light .border-white\/8,
+.light .border-white\/10 {
+  border-color: var(--card-border) !important;
+}
+
+/* --- Accent Colors --- */
+.light .bg-accent {
+  background-color: var(--accent) !important;
+}
+
+.light .text-accent {
+  color: var(--accent) !important;
+}
+
+.light .bg-accent\/10,
+.light .bg-accent\/20 {
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+.light .border-accent\/20,
+.light .border-accent\/30 {
+  border-color: rgba(79, 70, 229, 0.2) !important;
+}
+
+/* --- Primary Button (white in dark -> accent in light) --- */
+.light .bg-white {
+  background-color: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-text) !important;
+}
+
+.light .text-black {
+  color: var(--btn-primary-text) !important;
+}
+
+/* --- Hover States (Critical!) --- */
+.light .hover\:text-white:hover {
+  color: var(--accent) !important;
+}
+
+.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* --- Cards & Surfaces --- */
+.light .rounded-2xl,
+.light .rounded-xl {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.light .rounded-full.bg-white\/5 {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+.light .rounded-md.bg-white\/5 {
+  background-color: var(--surface) !important;
+}
+
+/* --- Tags & Chips --- */
+.light .rounded-full.bg-accent\/10 {
+  background-color: rgba(79, 70, 229, 0.08) !important;
+  color: var(--accent) !important;
+}
+
+/* --- Glow Effects (reduce in light mode) --- */
+.light .blur-\[120px\],
+.light .blur-\[150px\],
+.light .blur-\[100px\],
+.light .blur-\[80px\] {
+  opacity: 0.15 !important;
+}
+
+/* --- Footer --- */
+.light .border-t.border-white\/5 {
+  border-color: var(--card-border) !important;
+}
+
+/* --- Navbar shadow --- */
+.light nav {
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Green status dot (keep green) --- */
+.light .bg-green-500 {
+  background-color: #22C55E !important;
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
