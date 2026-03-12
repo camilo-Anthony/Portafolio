@@ -39,8 +39,10 @@ export default function ScrollContainer() {
     const scrollAccumulator = useRef(0);
     const isTransitioning = useRef(false);
     const lastScrollTime = useRef(Date.now());
+    const touchStartY = useRef<number | null>(null);
 
     const SCROLL_THRESHOLD = 300;
+    const SWIPE_THRESHOLD = 50;
     const TRANSITION_COOLDOWN = 800;
 
     const handleWheel = useCallback((e: WheelEvent) => {
@@ -103,10 +105,61 @@ export default function ScrollContainer() {
         }
     }, [activeSection, setActiveSection, setScrollDirection]);
 
+    const handleTouchStart = useCallback((e: TouchEvent) => {
+        touchStartY.current = e.touches[0].clientY;
+    }, []);
+
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (touchStartY.current === null || isTransitioning.current) return;
+
+        const touchEndY = e.touches[0].clientY;
+        const deltaY = touchStartY.current - touchEndY;
+        const section = document.querySelector('[data-scroll-section]') as HTMLDivElement | null;
+
+        if (section) {
+            const { scrollTop, scrollHeight, clientHeight } = section;
+            const isAtTop = scrollTop <= 1;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+            const hasOverflow = scrollHeight > clientHeight + 20;
+
+            if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+                if (deltaY > 0) { // Swiping up (going down)
+                    if (hasOverflow && !isAtBottom) return;
+                    
+                    const newSection = activeSection + 1;
+                    if (newSection < sections.length) {
+                        isTransitioning.current = true;
+                        setScrollDirection(1);
+                        setActiveSection(newSection);
+                        touchStartY.current = null;
+                        setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
+                    }
+                } else { // Swiping down (going up)
+                    if (hasOverflow && !isAtTop) return;
+
+                    const newSection = activeSection - 1;
+                    if (newSection >= 0) {
+                        isTransitioning.current = true;
+                        setScrollDirection(-1);
+                        setActiveSection(newSection);
+                        touchStartY.current = null;
+                        setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
+                    }
+                }
+            }
+        }
+    }, [activeSection, setActiveSection, setScrollDirection]);
+
     useEffect(() => {
         window.addEventListener('wheel', handleWheel, { passive: false });
-        return () => window.removeEventListener('wheel', handleWheel);
-    }, [handleWheel]);
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        return () => {
+            window.removeEventListener('wheel', handleWheel);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchmove', handleTouchMove);
+        };
+    }, [handleWheel, handleTouchStart, handleTouchMove]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
