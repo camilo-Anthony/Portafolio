@@ -35,214 +35,42 @@ const transition = {
 };
 
 export default function ScrollContainer() {
-    const { activeSection, setActiveSection, scrollDirection, setScrollDirection } = useSectionContext();
-    const scrollAccumulator = useRef(0);
-    const isTransitioning = useRef(false);
-    const lastScrollTime = useRef(Date.now());
-    const touchStartY = useRef<number | null>(null);
-
-    const SCROLL_THRESHOLD = 300;
-    const SWIPE_THRESHOLD = 50;
-    const TRANSITION_COOLDOWN = 800;
-
-    const handleWheel = useCallback((e: WheelEvent) => {
-        const now = Date.now();
-        if (isTransitioning.current) {
-            e.preventDefault();
-            return;
-        }
-
-        const section = document.querySelector('[data-scroll-section]') as HTMLDivElement | null;
-
-        if (section) {
-            const { scrollTop, scrollHeight, clientHeight } = section;
-            const isAtTop = scrollTop <= 1;
-            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
-            const hasOverflow = scrollHeight > clientHeight + 20;
-
-            if (hasOverflow) {
-                if (e.deltaY > 0 && !isAtBottom) {
-                    section.scrollTop += e.deltaY;
-                    e.preventDefault();
-                    return;
-                }
-
-                if (e.deltaY < 0 && !isAtTop) {
-                    section.scrollTop += e.deltaY;
-                    e.preventDefault();
-                    return;
-                }
-            }
-        }
-
-        e.preventDefault();
-
-        const timeDelta = now - lastScrollTime.current;
-        if (timeDelta > 300) {
-            scrollAccumulator.current = 0;
-        }
-        lastScrollTime.current = now;
-
-        const dampening = 0.5;
-        scrollAccumulator.current += e.deltaY * dampening;
-
-        if (Math.abs(scrollAccumulator.current) >= SCROLL_THRESHOLD) {
-            const direction = scrollAccumulator.current > 0 ? 1 : -1;
-            const newSection = activeSection + direction;
-
-            if (newSection >= 0 && newSection < sections.length) {
-                isTransitioning.current = true;
-                setScrollDirection(direction);
-                setActiveSection(newSection);
-
-                scrollAccumulator.current = 0;
-                setTimeout(() => {
-                    isTransitioning.current = false;
-                }, TRANSITION_COOLDOWN);
-            } else {
-                scrollAccumulator.current = 0;
-            }
-        }
-    }, [activeSection, setActiveSection, setScrollDirection]);
-
-    const handleTouchStart = useCallback((e: TouchEvent) => {
-        touchStartY.current = e.touches[0].clientY;
-    }, []);
-
-    const handleTouchMove = useCallback((e: TouchEvent) => {
-        if (touchStartY.current === null || isTransitioning.current) return;
-
-        const touchEndY = e.touches[0].clientY;
-        const deltaY = touchStartY.current - touchEndY;
-        const section = document.querySelector('[data-scroll-section]') as HTMLDivElement | null;
-
-        if (section) {
-            const { scrollTop, scrollHeight, clientHeight } = section;
-            const isAtTop = scrollTop <= 1;
-            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
-            const hasOverflow = scrollHeight > clientHeight + 20;
-
-            if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-                if (deltaY > 0) { // Swiping up (going down)
-                    if (hasOverflow && !isAtBottom) return;
-                    
-                    const newSection = activeSection + 1;
-                    if (newSection < sections.length) {
-                        isTransitioning.current = true;
-                        setScrollDirection(1);
-                        setActiveSection(newSection);
-                        touchStartY.current = null;
-                        setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
-                    }
-                } else { // Swiping down (going up)
-                    if (hasOverflow && !isAtTop) return;
-
-                    const newSection = activeSection - 1;
-                    if (newSection >= 0) {
-                        isTransitioning.current = true;
-                        setScrollDirection(-1);
-                        setActiveSection(newSection);
-                        touchStartY.current = null;
-                        setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
-                    }
-                }
-            }
-        }
-    }, [activeSection, setActiveSection, setScrollDirection]);
-
-    useEffect(() => {
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        return () => {
-            window.removeEventListener('wheel', handleWheel);
-            window.removeEventListener('touchstart', handleTouchStart);
-            window.removeEventListener('touchmove', handleTouchMove);
-        };
-    }, [handleWheel, handleTouchStart, handleTouchMove]);
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (isTransitioning.current) return;
-
-            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-                e.preventDefault();
-                if (activeSection < sections.length - 1) {
-                    isTransitioning.current = true;
-                    setScrollDirection(1);
-                    setActiveSection(activeSection + 1);
-                    setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
-                }
-            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                e.preventDefault();
-                if (activeSection > 0) {
-                    isTransitioning.current = true;
-                    setScrollDirection(-1);
-                    setActiveSection(activeSection - 1);
-                    setTimeout(() => { isTransitioning.current = false; }, TRANSITION_COOLDOWN);
-                }
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [activeSection, setActiveSection, setScrollDirection]);
-
-    const ActiveComponent = sections[activeSection]?.Component;
-
     return (
-        <div className="fixed inset-0 z-10 overflow-hidden">
-            <AnimatePresence initial={false} custom={scrollDirection} mode="popLayout">
-                <SectionAnimatedWrapper
-                    key={activeSection}
-                    direction={scrollDirection}
-                    ActiveComponent={ActiveComponent}
+        <div className="relative w-full overflow-x-hidden">
+            {sections.map((section, index) => (
+                <SectionWrapper
+                    key={section.id}
+                    id={section.id}
+                    Component={section.Component}
+                    index={index}
                 />
-            </AnimatePresence>
+            ))}
         </div>
     );
 }
 
-// Wrapper component to handle scroll position with useLayoutEffect
-function SectionAnimatedWrapper({
-    direction,
-    ActiveComponent
+function SectionWrapper({
+    id,
+    Component,
+    index
 }: {
-    direction: number;
-    ActiveComponent: React.ComponentType | undefined;
+    id: string;
+    Component: React.ComponentType;
+    index: number;
 }) {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    // useLayoutEffect runs synchronously before browser paint
-    useLayoutEffect(() => {
-        const section = sectionRef.current;
-        if (section) {
-            if (direction < 0) {
-                // Going up: scroll to bottom
-                section.scrollTop = section.scrollHeight;
-            } else {
-                // Going down: scroll to top
-                section.scrollTop = 0;
-            }
-        }
-    }, [direction]);
-
     return (
-        <motion.div
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={transition}
-            ref={sectionRef}
-            className="absolute inset-0 flex items-start justify-center px-4 sm:px-6 md:px-12 pt-20 md:pt-24 pb-8 overflow-y-auto"
-            data-scroll-section
+        <motion.section
+            id={id}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            className="w-full min-h-[80vh] flex items-center justify-center px-4 sm:px-6 md:px-12 py-16 md:py-24"
         >
-            <div className="max-w-7xl mx-auto w-full py-8 md:py-0">
-                {ActiveComponent && <ActiveComponent />}
+            <div className="max-w-7xl mx-auto w-full">
+                <Component />
             </div>
-        </motion.div>
+        </motion.section>
     );
 }
 

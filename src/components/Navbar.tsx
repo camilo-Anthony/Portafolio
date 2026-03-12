@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import { Menu, X, Github, ArrowUpRight } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -16,15 +16,46 @@ const navLinks = [
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { activeSection, goToSection } = useSectionContext();
+    const { activeSection, setActiveSection } = useSectionContext();
     const { scrollY } = useScroll();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 50);
     });
 
+    useEffect(() => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -70% 0px',
+            threshold: 0
+        };
+
+        const observerCallback = (entries: IntersectionObserverEntry[]) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const index = navLinks.findIndex(link => link.id === entry.target.id);
+                    if (index !== -1) {
+                        setActiveSection(index);
+                    }
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        
+        navLinks.forEach((link) => {
+            const element = document.getElementById(link.id);
+            if (element) observer.observe(element);
+        });
+
+        return () => observer.disconnect();
+    }, [setActiveSection]);
+
     const handleNavClick = (sectionId: string) => {
-        goToSection(sectionId);
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
         setIsMobileMenuOpen(false);
     };
 

@@ -19,6 +19,7 @@
 
 :root {
   color-scheme: dark;
+  scroll-padding-top: 5rem; /* Aligns with navbar height + spacing */
 }
 
 .dark {
