@@ -1,12 +1,12 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = "Desarrollador de Software enfocado en sistemas, backend y productos SaaS." } = Astro.props;
+const { title, description = "Desarrollador Web" } = Astro.props;
 ---
 
 <!doctype html>
@@ -18,11 +18,17 @@ const { title, description = "Desarrollador de Software enfocado en sistemas, ba
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    
+
     <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Dub.sh Domain Verification -->
+    <meta name="dub-domain-verification" content="dfcd8823-f44f-4eb4-8047-f3cf11183a69" />
   </head>
   <body class="bg-bg text-text selection:bg-accent/30 selection:text-white">
     <slot />
