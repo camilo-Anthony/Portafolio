@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function ThemeToggle() {
     const [isDark, setIsDark] = useState(true);
 
     useEffect(() => {
-        // Check localStorage or system preference on mount
         const stored = localStorage.getItem('theme');
         if (stored) {
             setIsDark(stored === 'dark');
@@ -16,7 +14,6 @@ export default function ThemeToggle() {
     }, []);
 
     useEffect(() => {
-        // Apply theme to document
         if (isDark) {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
@@ -29,23 +26,17 @@ export default function ThemeToggle() {
     }, [isDark]);
 
     return (
-        <motion.button
+        <button
             onClick={() => setIsDark(!isDark)}
-            className="relative p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-            whileTap={{ scale: 0.95 }}
+            className="group relative p-2 overflow-hidden transition-all duration-300"
             aria-label="Toggle theme"
         >
-            <motion.div
-                initial={false}
-                animate={{ rotate: isDark ? 0 : 180 }}
-                transition={{ duration: 0.3 }}
-            >
-                {isDark ? (
-                    <Moon size={18} className="text-muted" />
-                ) : (
-                    <Sun size={18} className="text-yellow-500" />
-                )}
-            </motion.div>
-        </motion.button>
+            <div className={isDark ? "rotate-0 opacity-100" : "rotate-90 opacity-0 absolute"} style={{ transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                <Moon size={16} className="text-[#444] group-hover:text-white transition-colors" />
+            </div>
+            <div className={!isDark ? "rotate-0 opacity-100" : "-rotate-90 opacity-0 absolute"} style={{ transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                <Sun size={16} className="text-yellow-500" />
+            </div>
+        </button>
     );
 }

@@ -35,7 +35,7 @@ const Stars = (props: any) => {
             <Points ref={ref} positions={sphere} stride={3} frustumCulled={false} {...props}>
                 <PointMaterial
                     transparent
-                    color="#6366F1"
+                    color="#F59E0B"
                     size={0.02} // Smaller for subtle effect
                     sizeAttenuation={true}
                     depthWrite={false}
@@ -53,7 +53,7 @@ const FloatingShapes = () => {
             <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5} position={[2, 2, -2]}>
                 <mesh>
                     <icosahedronGeometry args={[0.5, 0]} />
-                    <meshStandardMaterial color="#6366F1" wireframe opacity={0.1} transparent />
+                    <meshStandardMaterial color="#F59E0B" wireframe opacity={0.1} transparent />
                 </mesh>
             </Float>
             <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8} position={[-2, -1, -1]}>

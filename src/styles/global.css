@@ -8,9 +8,26 @@
   --color-black: #000000;
   --color-surface: #0A0A0A;
   --color-text: #E5E7EB;
-  --color-muted: #9CA3AF;
-  --color-accent: #6366F1;
+  --color-muted: #6B7280;
+  --color-accent: var(--accent);
   --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Glassmorphism & Effects */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(12px);
+  --glow-color: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+@keyframes border-beam {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
 }
 
 /* ========================================
@@ -19,7 +36,8 @@
 
 :root {
   color-scheme: dark;
-  scroll-padding-top: 5rem; /* Aligns with navbar height + spacing */
+  scroll-padding-top: 5rem;
+  /* Aligns with navbar height + spacing */
 }
 
 .dark {
@@ -28,7 +46,8 @@
   --text: #E5E7EB;
   --text-strong: #FFFFFF;
   --muted: #6B7280;
-  --accent: #6366F1;
+  --accent: #F59E0B;
+  /* Amber 500 para un look de Terminal/Mainframe retro */
   --card-bg: rgba(255, 255, 255, 0.03);
   --card-border: rgba(255, 255, 255, 0.08);
   --btn-primary-bg: #FFFFFF;
@@ -41,15 +60,20 @@
    ======================================== */
 
 .light {
-  --bg: #F8F9FA;
-  --surface: #FFFFFF;
-  --text: #374151;
-  --text-strong: #111827;
-  --muted: #6B7280;
-  --accent: #4F46E5;
+  --bg: #F5F5F5;
+  /* Off-white for less eye strain */
+  --surface: #EBEBEB;
+  --text: #0F172A;
+  /* Slate-900 — deepest possible */
+  --text-strong: #000000;
+  --muted: #334155;
+  /* Slate-700 */
+  --accent: #F59E0B;
   --card-bg: #FFFFFF;
-  --card-border: #E5E7EB;
-  --btn-primary-bg: #111827;
+  /* Cards pop as pure white against off-white bg */
+  --card-border: #9CA3AF;
+  /* Gray-400 — much more visible borders */
+  --btn-primary-bg: #0F172A;
   --btn-primary-text: #FFFFFF;
   color-scheme: light;
 }
@@ -78,33 +102,46 @@ body {
   background-color: var(--bg) !important;
 }
 
-.light .bg-black {
-  background-color: var(--bg) !important;
-}
+/* .light .bg-black override removed — components now use explicit bg-white dark:bg-black */
 
+.light .bg-white\/\[0\.01\],
 .light .bg-white\/5,
 .light .bg-white\/\[0\.03\],
 .light .bg-white\/\[0\.07\] {
   background-color: var(--card-bg) !important;
   border: 1px solid var(--card-border) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
 
 .light .bg-bg\/60 {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(248, 249, 250, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
-.light .bg-bg\/80 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+.light .bg-bg\/80,
+.light .bg-black\/90 {
+  background-color: rgba(248, 249, 250, 0.9) !important;
+  backdrop-filter: blur(12px) !important;
 }
 
 .light .bg-bg\/95 {
-  background-color: rgba(255, 255, 255, 0.98) !important;
+  background-color: rgba(248, 249, 250, 0.98) !important;
 }
 
 /* --- Text Colors --- */
 .light .text-white {
   color: var(--text-strong) !important;
+}
+
+.light .text-white\/80 {
+  color: var(--text) !important;
+}
+
+.light .text-white\/50,
+.light .text-white\/60,
+.light .text-white\/40,
+.light .text-white\/20 {
+  color: var(--muted) !important;
 }
 
 .light .text-text {
@@ -113,6 +150,143 @@ body {
 
 .light .text-muted {
   color: var(--muted) !important;
+}
+
+/* ========================================
+   PREMIUM AESTHETICS (Animations & Cards)
+   ======================================== */
+
+/* --- Custom Slim Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+  /* Accent color on hover */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+/* --- Animations --- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes auroras {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  /* Starts hidden until animation triggers */
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-aurora {
+  animation: auroras 30s linear infinite;
+}
+
+/* Stagger delays for children */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+/* 
+  Card Inner Glow Effect (Hologram Style)
+  Using a generic class that can handle both dark/light modes via variables 
+*/
+.hover-card-glow {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.hover-card-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px transparent;
+  /* Default invisible inner ring */
+  transition: box-shadow 0.4s ease, background 0.4s ease;
+  pointer-events: none;
+}
+
+.hover-card-glow:hover {
+  transform: translateY(-4px);
+}
+
+.dark .hover-card-glow:hover::after {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), inset 0 0 20px color-mix(in srgb, var(--accent) 5%, transparent);
+  /* Accent inner glow dark */
+}
+
+.light .hover-card-glow:hover::after {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent), inset 0 0 20px color-mix(in srgb, var(--accent) 3%, transparent);
+  /* Accent inner glow light */
 }
 
 /* --- Gradient Text Fix (Critical!) --- */
@@ -132,6 +306,10 @@ body {
   border-color: var(--card-border) !important;
 }
 
+.light .border-b.border-white\/\[0\.02\] {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
 /* --- Accent Colors --- */
 .light .bg-accent {
   background-color: var(--accent) !important;
@@ -142,38 +320,50 @@ body {
 }
 
 .light .bg-accent\/10,
-.light .bg-accent\/20 {
-  background-color: rgba(79, 70, 229, 0.1) !important;
+.light .bg-accent\/20,
+.light .bg-accent\/30 {
+  background-color: color-mix(in srgb, var(--accent) 8%, transparent) !important;
 }
 
 .light .border-accent\/20,
 .light .border-accent\/30 {
-  border-color: rgba(79, 70, 229, 0.2) !important;
+  border-color: color-mix(in srgb, var(--accent) 15%, transparent) !important;
 }
 
-/* --- Primary Button (white in dark -> accent in light) --- */
-.light .bg-white {
-  background-color: var(--btn-primary-bg) !important;
-  color: var(--btn-primary-text) !important;
+/* --- Primary Button Fix --- */
+.light .bg-white.text-black {
+  background-color: var(--text-strong) !important;
+  color: var(--bg) !important;
 }
 
-.light .text-black {
-  color: var(--btn-primary-text) !important;
+.light .bg-white.text-black:hover {
+  background-color: var(--accent) !important;
+  color: white !important;
 }
 
-/* --- Hover States (Critical!) --- */
+/* --- Hover States --- */
 .light .hover\:text-white:hover {
   color: var(--accent) !important;
 }
 
-.light .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+.light .group:hover .text-white\/20,
+.light .group:hover .text-white\/50 {
+  color: var(--accent) !important;
+}
+
+.light .hover\:bg-white\/\[0\.02\]:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.light .hover\:bg-accent:hover {
+  background-color: var(--accent) !important;
+  color: white !important;
 }
 
 /* --- Cards & Surfaces --- */
 .light .rounded-2xl,
 .light .rounded-xl {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 .light .rounded-full.bg-white\/5 {
@@ -185,18 +375,33 @@ body {
   background-color: var(--surface) !important;
 }
 
-/* --- Tags & Chips --- */
-.light .rounded-full.bg-accent\/10 {
-  background-color: rgba(79, 70, 229, 0.08) !important;
-  color: var(--accent) !important;
+/* --- Light Mode Readability Overrides --- */
+.light .opacity-10,
+.light .opacity-30 {
+  opacity: 0.2 !important;
 }
 
-/* --- Glow Effects (reduce in light mode) --- */
+.light .opacity-40,
+.light .opacity-50 {
+  opacity: 0.6 !important;
+}
+
+.light .text-accent {
+  color: #B45309 !important;
+  /* Amber 700 specifically for text legibility on white */
+}
+
+.light .font-light {
+  font-weight: 400 !important;
+  /* Boost thin fonts to normal weight on white background */
+}
+
+/* --- Glow Effects (kill in light mode) --- */
 .light .blur-\[120px\],
 .light .blur-\[150px\],
 .light .blur-\[100px\],
 .light .blur-\[80px\] {
-  opacity: 0.15 !important;
+  opacity: 0.03 !important;
 }
 
 /* --- Footer --- */

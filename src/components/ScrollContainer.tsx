@@ -1,181 +1,171 @@
-import { useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSectionContext } from './SectionContext';
+import { useState, useEffect, useRef } from 'react';
+import { audioSystem } from '../lib/audio';
+import { cn } from '../lib/utils';
+import { Mail, Linkedin, ArrowRight, Send, Globe, Code2, Server, Cpu } from 'lucide-react';
 
 const sections = [
     { id: 'hero', Component: HeroContent },
     { id: 'about', Component: AboutContent },
-    { id: 'services', Component: ServicesContent },
+    { id: 'tech', Component: TechContent },
     { id: 'projects', Component: ProjectsContent },
+    { id: 'philosophy', Component: PhilosophyContent },
     { id: 'contact', Component: ContactContent },
 ];
 
-// Directional animation variants
-const variants = {
-    enter: (direction: number) => ({
-        y: direction > 0 ? '100%' : '-100%',
-        opacity: 0,
-        scale: 0.95,
-    }),
-    center: {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-    },
-    exit: (direction: number) => ({
-        y: direction > 0 ? '-15%' : '15%',
-        opacity: 0,
-        scale: 0.95,
-    }),
-};
-
-const transition = {
-    duration: 1.2,
-    ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
-};
-
 export default function ScrollContainer() {
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePos({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+
     return (
-        <div className="relative w-full overflow-x-hidden">
-            {sections.map((section, index) => (
+        <div className="relative w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text)] selection:bg-accent selection:text-white transition-colors duration-500">
+            {/* Dynamic Cursor Light (Flashlight effect) */}
+            <div
+                className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+                style={{
+                    background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, var(--glow-color), transparent 40%)`
+                }}
+            />
+
+            {sections.map((section) => (
                 <SectionWrapper
                     key={section.id}
                     id={section.id}
                     Component={section.Component}
-                    index={index}
                 />
             ))}
         </div>
     );
 }
 
-function SectionWrapper({
-    id,
-    Component,
-    index
-}: {
-    id: string;
-    Component: React.ComponentType;
-    index: number;
-}) {
+function SectionWrapper({ id, Component }: { id: string; Component: React.ComponentType }) {
+    const [isVisible, setIsVisible] = useState(false);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+        );
+
+        if (sectionRef.current) observer.observe(sectionRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     return (
-        <motion.section
+        <section
             id={id}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="w-full min-h-[80vh] flex items-center justify-center px-4 sm:px-6 md:px-12 py-16 md:py-24"
+            ref={sectionRef}
+            className={cn(
+                "w-full min-h-screen flex items-center justify-center p-6 md:p-12 lg:p-24 border-b border-black/[0.03] dark:border-white/[0.02]",
+                isVisible ? "animate-fade-up" : "opacity-0"
+            )}
         >
-            <div className="max-w-7xl mx-auto w-full">
+            <div className="max-w-7xl mx-auto w-full relative z-10">
                 <Component />
             </div>
-        </motion.section>
+        </section>
     );
 }
 
 // ============================================
 // HERO CONTENT
 // ============================================
+
 function HeroContent() {
-    const highlights = [
-        "Desarrollo de aplicaciones y sistemas web",
-        "Estructura y organización del software",
-        "Implementación de soluciones digitales",
-        "Mantenimiento y mejora de aplicaciones web"
-    ];
+    const fullText = "Camilo Anthony";
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(true);
+
+    useEffect(() => {
+        let i = 0;
+        let isDeleting = false;
+        let timeout: ReturnType<typeof setTimeout>;
+
+        const loop = () => {
+            setIsTyping(true);
+
+            if (!isDeleting) {
+                setDisplayText(fullText.slice(0, i + 1));
+                i++;
+                if (i === fullText.length) {
+                    isDeleting = true;
+                    setIsTyping(false);
+                    // Esperar 10 segundos antes de empezar a borrar
+                    timeout = setTimeout(loop, 10000);
+                } else {
+                    timeout = setTimeout(loop, 80);
+                }
+            } else {
+                setDisplayText(fullText.slice(0, i - 1));
+                i--;
+                if (i === 0) {
+                    isDeleting = false;
+                    // Esperar 1 segundo antes de volver a escribir
+                    timeout = setTimeout(loop, 1000);
+                } else {
+                    timeout = setTimeout(loop, 40);
+                }
+            }
+        };
+
+        timeout = setTimeout(loop, 100);
+
+        return () => clearTimeout(timeout);
+    }, []);
 
     return (
-        <div className="text-center">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6"
-            >
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-                <span className="text-sm text-muted font-medium">Disponible para proyectos</span>
-            </motion.div>
+        <div className="space-y-12">
+            <h1 className="text-5xl md:text-6xl lg:text-[6rem] font-black leading-[0.9] tracking-tighter uppercase italic pt-12">
+                {displayText.split(' ')[0]} <br />
+                <span className="opacity-30 dark:opacity-10">{displayText.split(' ')[1] || ''}</span>
+                <span className={cn(
+                    "inline-block w-[0.1em] h-[0.8em] bg-accent ml-2 translate-y-2",
+                    !isTyping && "animate-blink"
+                )} />
+            </h1>
 
-            <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-4"
-            >
-                Camilo Anthony
-            </motion.h1>
+            <div className="max-w-3xl space-y-8">
+                <p className="text-xl md:text-2xl font-light leading-relaxed text-[var(--text)]">
+                    Desarrollador web enfocado en la creación de aplicaciones y plataformas digitales orientadas a resolver problemas reales mediante tecnología.
+                </p>
+                <p className="text-lg md:text-xl font-light text-[var(--muted)] leading-relaxed max-w-2xl">
+                    Diseño, desarrollo e implemento sistemas web completos que integran interfaces modernas, lógica de negocio robusta y servicios externos mediante APIs.
+                </p>
+            </div>
 
-            <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-xl md:text-2xl text-accent font-medium mb-2"
-            >
-                Desarrollador Web
-            </motion.p>
-
-            <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
-                className="text-base md:text-lg text-muted mb-6"
-            >
-                Desarrollo de aplicaciones y sistemas web
-            </motion.p>
-
-            <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-base md:text-lg text-muted max-w-3xl mx-auto mb-8 leading-relaxed"
-            >
-                Trabajo en el desarrollo de aplicaciones y sistemas web, participando en el diseño,
-                la estructura y la implementación de soluciones digitales. Mi enfoque se basa en crear
-                aplicaciones claras, organizadas y funcionales, adaptadas a las necesidades de cada proyecto.
-            </motion.p>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex flex-wrap justify-center gap-2 mb-10 max-w-2xl mx-auto"
-            >
-                {highlights.map((item, i) => (
-                    <motion.span
-                        key={item}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
-                        className="px-3 py-1.5 text-sm rounded-full bg-white/5 border border-white/10 text-muted"
-                    >
-                        {item}
-                    </motion.span>
-                ))}
-            </motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
+            <div className="pt-8 flex flex-wrap gap-6">
                 <button
-                    onClick={() => { }}
-                    className="group px-8 py-4 rounded-full bg-white text-black font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-white/10"
+                    onMouseEnter={() => audioSystem.play('hover')}
+                    onClick={() => {
+                        audioSystem.play('click');
+                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="flex items-center gap-4 px-10 py-5 bg-accent text-white text-xs font-bold uppercase tracking-[0.3em] hover:brightness-110 transition-all duration-300 shadow-[0_0_40px_var(--glow-color)] hover:shadow-[0_0_60px_var(--glow-color)] hover:-translate-y-1"
                 >
-                    Ver proyectos →
+                    Contactar <ArrowRight size={16} />
                 </button>
                 <button
-                    onClick={() => { }}
-                    className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all duration-300"
+                    onMouseEnter={() => audioSystem.play('hover')}
+                    onClick={() => {
+                        audioSystem.play('click');
+                        document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="flex items-center gap-4 px-10 py-5 border border-[var(--card-border)] text-[var(--text)] text-xs font-bold uppercase tracking-[0.3em] hover:bg-[var(--text)] hover:text-[var(--bg)] transition-all duration-300 hover:-translate-y-1"
                 >
-                    Contactarme
+                    Ver Proyectos
                 </button>
-            </motion.div>
+            </div>
         </div>
     );
 }
@@ -184,153 +174,86 @@ function HeroContent() {
 // ABOUT CONTENT
 // ============================================
 function AboutContent() {
-    const paragraphs = [
-        "Cuento con formación en diseño y programación web, lo que me permite comprender tanto la parte técnica como la experiencia de uso de las aplicaciones.",
-        "Trabajo con un enfoque ordenado y estructurado, priorizando la claridad, la organización y la facilidad de mantenimiento de cada sistema.",
-        "Me adapto a las necesidades de cada proyecto, buscando siempre desarrollar soluciones que puedan mantenerse y evolucionar en el tiempo."
-    ];
-
-    const highlights = [
-        "Desarrollo de aplicaciones y sistemas web",
-        "Organización y estructura del software",
-        "Implementación y mantenimiento de soluciones digitales",
-        "Trabajo responsable y orientado a la calidad"
-    ];
-
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start md:items-center">
-            <div>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-accent font-medium mb-4 tracking-wide uppercase text-sm"
-                >
-                    Sobre mí
-                </motion.p>
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-3xl md:text-4xl font-bold text-white mb-6 tracking-tight"
-                >
-                    Camilo Anthony
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="text-muted text-base md:text-lg leading-relaxed mb-6"
-                >
-                    Soy Camilo Anthony, desarrollador web dedicado al desarrollo de aplicaciones y sistemas web.
-                    Participo en todas las etapas del proceso, desde la planificación y estructura del sistema
-                    hasta su implementación y mantenimiento. Mi trabajo se basa en crear soluciones digitales
-                    claras, organizadas y funcionales, cuidando la calidad del código y la correcta estructura del software.
-                </motion.p>
-                {paragraphs.map((text, i) => (
-                    <motion.p
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                        className="text-muted text-sm leading-relaxed mb-4"
-                    >
-                        {text}
-                    </motion.p>
-                ))}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+            <div className="space-y-12 pt-12">
+
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight leading-[1] text-[var(--text)]">
+                    Sobre <span className="opacity-60 dark:opacity-30 font-light">mí</span>
+                </h2>
+
+                <div className="space-y-8 text-xl font-light text-[var(--muted)] leading-relaxed">
+                    <p>
+                        Soy desarrollador web con experiencia en la creación de aplicaciones completas que combinan desarrollo frontend, backend e integración de servicios externos.
+                    </p>
+                    <p>
+                        Mi enfoque de desarrollo se centra en la organización del software mediante arquitecturas estructuradas, separación de responsabilidades y diseño modular del código.
+                    </p>
+                    <p>
+                        Esto permite que los sistemas puedan evolucionar con el tiempo y adaptarse a nuevas necesidades sin comprometer su estabilidad.
+                    </p>
+                </div>
             </div>
-            <div>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="p-6 rounded-2xl bg-white/5 border border-white/10"
-                >
-                    <h3 className="text-lg font-semibold text-white mb-4">Enfoque</h3>
-                    <ul className="space-y-3">
-                        {highlights.map((item, i) => (
-                            <motion.li
-                                key={item}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
-                                className="flex items-start gap-3 text-muted text-sm"
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"></span>
-                                {item}
-                            </motion.li>
-                        ))}
-                    </ul>
-                </motion.div>
+
+            <div className="lg:pt-24 space-y-12">
+                <div className="p-10 border border-[var(--card-border)] bg-[var(--card-bg)] space-y-6">
+                    <div className="flex items-center gap-4 text-accent">
+                        <Cpu size={20} />
+                        <span className="font-mono text-[10px] tracking-widest uppercase">Specialization_Module</span>
+                    </div>
+                    <p className="text-sm font-light text-[var(--muted)] leading-relaxed">
+                        Me interesa la creación de herramientas tecnológicas que integren inteligencia artificial, automatización de procesos y consumo de APIs externas para construir soluciones más inteligentes y eficientes.
+                    </p>
+                </div>
+
+
             </div>
         </div>
     );
 }
 
 // ============================================
-// SERVICES CONTENT
+// TECH CONTENT
 // ============================================
-function ServicesContent() {
-    const services = [
+function TechContent() {
+    const stacks = [
         {
-            name: "Análisis y planificación",
-            description: "Análisis de requerimientos y planificación del sistema web, definiendo la estructura y el alcance del proyecto antes de su desarrollo."
+            icon: Code2,
+            title: "Frontend Development",
+            content: "React, Astro y Tailwind CSS. Interfaces responsivas, componentes reutilizables y rendimiento optimizado para una experiencia fluida."
         },
         {
-            name: "Desarrollo de sistemas web",
-            description: "Desarrollo de sistemas web a medida, participando en la estructura, implementación y organización del sistema según las necesidades del proyecto."
+            icon: Server,
+            title: "Backend & Systems",
+            content: "PHP y Python con FastAPI. APIs REST, autenticación, lógica de negocio y conexión con bases de datos y servicios externos."
         },
         {
-            name: "Mantenimiento y mejora de sistemas web",
-            description: "Mantenimiento, ajustes y mejoras en sistemas web existentes, cuidando su estabilidad, organización y correcto funcionamiento."
+            icon: Cpu,
+            title: "Software Architecture",
+            content: "Patrón MVC, separación de capas y código modular. Sistemas organizados que escalan sin acumular deuda técnica."
         },
         {
-            name: "Soporte técnico",
-            description: "Soporte técnico para sistemas web, realizando correcciones y ajustes necesarios durante su uso."
+            icon: Globe,
+            title: "Deployment & OPS",
+            content: "Despliegue en VPS, Vercel y Render. Configuración de dominios, SSL, CI/CD y monitoreo en producción."
         }
     ];
 
     return (
-        <div>
-            <div className="text-center mb-10">
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-accent font-medium mb-4 tracking-wide uppercase text-sm"
-                >
-                    Servicios
-                </motion.p>
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight"
-                >
-                    Lo que puedo hacer por ti
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.25 }}
-                    className="text-muted max-w-2xl mx-auto"
-                >
-                    Ofrezco servicios orientados al desarrollo y mantenimiento de sistemas web,
-                    trabajando de forma organizada y adaptándome a los requerimientos de cada proyecto.
-                </motion.p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                {services.map((service, i) => (
-                    <motion.div
-                        key={service.name}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                        className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-500"
-                    >
-                        <h3 className="text-lg font-semibold text-white mb-3">{service.name}</h3>
-                        <p className="text-muted text-sm leading-relaxed">{service.description}</p>
-                    </motion.div>
+        <div className="space-y-20 pt-12">
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight leading-[1] text-[var(--text)]">
+                Stack <span className="opacity-60 dark:opacity-30 font-light">Tecnológico</span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--card-border)] border border-[var(--card-border)]">
+                {stacks.map((s, i) => (
+                    <div key={i} className="hover-card-glow bg-[var(--bg)] p-10 space-y-8 transition-colors group">
+                        <div className="p-4 border border-[var(--card-border)] w-fit group-hover:border-accent transition-colors">
+                            <s.icon className="text-[var(--muted)] group-hover:text-accent transition-colors" size={24} />
+                        </div>
+                        <h3 className="text-sm md:text-base font-bold uppercase tracking-widest text-[var(--text)]">{s.title}</h3>
+                        <p className="text-sm font-light text-[var(--muted)] leading-relaxed">{s.content}</p>
+                    </div>
                 ))}
             </div>
         </div>
@@ -343,100 +266,120 @@ function ServicesContent() {
 function ProjectsContent() {
     const projects = [
         {
-            name: "Sistema de gestión hotelera",
-            description: "Sistema web desarrollado para la gestión y organización de información en hostales y hoteles.",
-            image: "/projects/hotel-system.png",
-            gradient: "from-blue-500/20 to-purple-500/20"
+            id: "01",
+            name: "Sistema de gestión para hostales",
+            desc: "Administración centralizada de habitaciones, reservas y clientes. Arquitectura organizada para mantenimiento y escalabilidad futura.",
+            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop",
+            tech: ["PHP", "MySQL", "MVC"],
+            link: "#"
         },
         {
-            name: "Sistema de consultas por créditos",
-            description: "Sistema web orientado a la gestión de consultas y control de uso por parte de los usuarios.",
-            image: "/projects/credits-system.png",
-            gradient: "from-green-500/20 to-teal-500/20"
+            id: "02",
+            name: "Automatización WhatsApp con IA",
+            desc: "Plataforma que automatiza respuestas mediante inteligencia artificial, conectando via QR con mecanismos de control de flujo.",
+            image: "https://images.unsplash.com/photo-1574767514286-88343ede5322?q=80&w=2070&auto=format&fit=crop",
+            tech: ["Next.js", "Prisma", "Groq API"],
+            link: "#"
         },
         {
-            name: "Sistema de consulta de información",
-            description: "Sistema web desarrollado para la consulta y procesamiento de información estructurada.",
-            image: "/projects/info-system.png",
-            gradient: "from-orange-500/20 to-red-500/20"
+            id: "03",
+            name: "Plataforma de consultas APIs",
+            desc: "Sistema diseñado para centralizar información de múltiples servicios externos mediante APIs estructuradas.",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+            tech: ["Python", "FastAPI", "React"],
+            link: "#"
+        },
+        {
+            id: "04",
+            name: "Plataforma SaaS por Créditos",
+            desc: "Modelo de herramientas digitales como servicio basado en créditos, con registro de usuarios y pasarelas de pago.",
+            image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?q=80&w=2070&auto=format&fit=crop",
+            tech: ["React", "Node.js", "Stripe"],
+            link: "#"
         }
     ];
 
     return (
-        <div>
-            <div className="text-center mb-10">
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-accent font-medium mb-4 tracking-wide uppercase text-sm"
-                >
-                    Proyectos
-                </motion.p>
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight"
-                >
-                    Experiencia en sistemas reales
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.25 }}
-                    className="text-muted max-w-2xl mx-auto"
-                >
-                    A continuación se muestran algunos proyectos desarrollados como parte de mi experiencia
-                    en el desarrollo de sistemas web.
-                </motion.p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-                {projects.map((project, i) => (
-                    <motion.div
-                        key={project.name}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                        className="rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-500 group overflow-hidden"
+        <div className="space-y-20 pt-12">
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight leading-[1] text-[var(--text)]">
+                Proyectos <span className="opacity-60 dark:opacity-30 font-light">Destacados</span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+                {projects.map((p) => (
+                    <div
+                        key={p.id}
+                        onMouseEnter={() => audioSystem.play('hover')}
+                        className="hover-card-glow group relative border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden"
                     >
-                        {/* Thumbnail placeholder - replace image src with your own */}
-                        <div className={`relative h-40 bg-gradient-to-br ${project.gradient} overflow-hidden`}>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                {/* Placeholder pattern */}
-                                <div className="w-full h-full opacity-30">
-                                    <div className="absolute top-4 left-4 right-4 h-6 bg-white/20 rounded"></div>
-                                    <div className="absolute top-14 left-4 w-1/3 h-20 bg-white/10 rounded"></div>
-                                    <div className="absolute top-14 left-1/3 right-4 ml-6 h-20 bg-white/10 rounded"></div>
-                                    <div className="absolute bottom-4 left-4 right-4 h-4 bg-white/10 rounded"></div>
-                                </div>
-                                {/* Icon overlay */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <svg className="w-12 h-12 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/10 transition-colors duration-500"></div>
+                        <div className="relative aspect-video overflow-hidden">
+                            <img src={p.image} alt={p.name} className="object-cover w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" />
                         </div>
-                        <div className="p-5">
-                            <h3 className="text-lg font-bold text-white mb-2 group-hover:text-accent transition-colors duration-300">
-                                {project.name}
+                        <div className="p-8 space-y-4">
+                            <h3 className="text-2xl font-black uppercase tracking-tight group-hover:text-accent transition-colors">
+                                {p.name}
                             </h3>
-                            <p className="text-muted text-sm leading-relaxed">{project.description}</p>
+                            <p className="text-sm font-light text-[var(--muted)] leading-relaxed">{p.desc}</p>
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {p.tech.map((t) => (
+                                    <span key={t} className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider border border-[var(--card-border)] text-[var(--muted)]">{t}</span>
+                                ))}
+                            </div>
+                            <a
+                                href={p.link}
+                                onClick={() => audioSystem.play('click')}
+                                className="inline-flex items-center gap-2 pt-2 text-xs font-bold uppercase tracking-[0.2em] text-accent hover:gap-4 transition-all duration-300"
+                            >
+                                Ver Proyecto <ArrowRight size={14} />
+                            </a>
                         </div>
-                    </motion.div>
+                    </div>
                 ))}
             </div>
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="text-center text-muted text-sm italic"
-            >
-                La lista de proyectos se ampliará progresivamente conforme se desarrollen nuevos sistemas.
-            </motion.p>
+        </div>
+    );
+}
+
+// ============================================
+// PHILOSOPHY CONTENT
+// ============================================
+function PhilosophyContent() {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 pt-12">
+
+            <div className="lg:col-span-7 space-y-10">
+                <h2 className="text-4xl md:text-6xl font-black uppercase leading-[1] tracking-tight text-[var(--text)]">
+                    Enfoque de <br /> <span className="opacity-60 dark:opacity-20 font-light">desarrollo</span>
+                </h2>
+                <div className="space-y-8 text-xl font-light text-[var(--muted)] leading-relaxed max-w-2xl">
+                    <p>
+                        Código limpio, arquitectura clara y cero atajos. Cada proyecto está pensado para funcionar hoy y escalar mañana.
+                    </p>
+                    <p>
+                        Prefiero invertir tiempo en una buena estructura desde el inicio que acumular deuda técnica después.
+                    </p>
+                </div>
+            </div>
+
+            <div className="lg:col-span-5 flex flex-col justify-center relative">
+                {/* Micro-decoration grid */}
+                <svg className="absolute -top-10 -right-10 w-48 h-48 text-accent/10 dark:text-accent/5" fill="none" viewBox="0 0 100 100">
+                    <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                    </pattern>
+                    <rect width="100" height="100" fill="url(#grid)" />
+                </svg>
+
+                <div className="bg-[var(--card-bg)] border border-[var(--card-border)] p-12 space-y-8 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8">
+                        <div className="h-1 w-12 bg-accent opacity-20 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="font-mono text-[10px] tracking-widest text-accent font-bold opacity-60 dark:opacity-30">// Próximo nivel</div>
+                    <p className="text-[var(--text)] font-light leading-relaxed">
+                        Actualmente enfocado en construir productos SaaS, automatizar procesos con IA y dominar el ciclo completo: desde la idea hasta el despliegue en producción.
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
@@ -445,128 +388,70 @@ function ProjectsContent() {
 // CONTACT CONTENT
 // ============================================
 function ContactContent() {
+    const [status, setStatus] = useState<string | null>(null);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        audioSystem.play('click');
+        setStatus('Enviando...');
+        setTimeout(() => setStatus('¡Mensaje enviado!'), 2000);
+    };
+
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-10">
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-accent font-medium mb-4 tracking-wide uppercase text-sm"
-                >
-                    Contacto
-                </motion.p>
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight"
-                >
-                    Hablemos sobre tu proyecto
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="text-muted text-base md:text-lg max-w-2xl mx-auto"
-                >
-                    Si necesitas desarrollar un sistema web o realizar mejoras en uno existente,
-                    puedes ponerte en contacto para evaluar tu proyecto y definir una posible solución.
-                </motion.p>
-            </div>
+        <div className="space-y-24">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start pt-12">
+                <div className="lg:col-span-5 space-y-12">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Contact Form */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="p-6 rounded-2xl bg-white/5 border border-white/10"
-                >
-                    <form className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-white mb-2">
-                                Nombre <span className="text-accent">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-muted focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors"
-                                placeholder="Tu nombre"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-white mb-2">
-                                Correo electrónico <span className="text-accent">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                required
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-muted focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors"
-                                placeholder="tu@correo.com"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-white mb-2">
-                                Mensaje <span className="text-accent">*</span>
-                            </label>
-                            <textarea
-                                required
-                                rows={4}
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-muted focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors resize-none"
-                                placeholder="Cuéntame sobre tu proyecto..."
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full px-6 py-3 rounded-xl bg-white text-black font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-white/10"
-                        >
-                            Enviar mensaje →
-                        </button>
-                    </form>
-                </motion.div>
+                    <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tight">
+                        Contacto.
+                    </h2>
 
-                {/* Contact Info */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="flex flex-col justify-between"
-                >
-                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 mb-4">
-                        <h3 className="text-lg font-semibold text-white mb-4">Información de contacto</h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                                    <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-muted">Correo electrónico</p>
-                                    <p className="text-white">contacto@camiloanthony.dev</p>
-                                </div>
+                    <p className="text-xl font-light text-[var(--muted)] leading-relaxed">
+                        ¿Tienes un proyecto en mente o quieres colaborar? Escríbeme y hablemos.
+                    </p>
+
+                    <div className="flex flex-col gap-6 pt-10 border-t border-[var(--card-border)]">
+                        <a href="mailto:hello@camiloanthony" className="group flex items-center gap-6">
+                            <Mail size={16} className="text-[var(--muted)] group-hover:text-accent transition-colors" />
+                            <span className="font-mono text-[10px] tracking-widest uppercase opacity-80">hello@camiloanthony</span>
+                        </a>
+                        <a href="https://linkedin.com" className="group flex items-center gap-6">
+                            <Linkedin size={16} className="text-[var(--muted)] group-hover:text-accent transition-colors" />
+                            <span className="font-mono text-[10px] tracking-widest uppercase opacity-80">/in/camiloanthony</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div className="lg:col-span-7">
+                    <form onSubmit={handleSubmit} className="p-8 md:p-12 border border-[var(--card-border)] bg-[var(--card-bg)] space-y-8 relative mt-10 lg:mt-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div className="space-y-4">
+                                <label className="font-mono text-[9px] uppercase tracking-[0.4em] opacity-70 dark:opacity-30 text-accent font-black">Nombre</label>
+                                <input type="text" required className="w-full bg-transparent border-b border-[var(--card-border)] py-3 focus:outline-none focus:border-accent transition-colors font-light" placeholder="Tu nombre" />
+                            </div>
+                            <div className="space-y-4">
+                                <label className="font-mono text-[9px] uppercase tracking-[0.4em] opacity-70 dark:opacity-30 text-accent font-black">Email</label>
+                                <input type="email" required className="w-full bg-transparent border-b border-[var(--card-border)] py-3 focus:outline-none focus:border-accent transition-colors font-light" placeholder="tu@email.com" />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="p-6 rounded-2xl bg-accent/5 border border-accent/20">
-                        <p className="text-muted text-sm leading-relaxed">
-                            También puedes comunicarte directamente a través del correo electrónico.
-                            Respondo a la brevedad posible.
-                        </p>
-                    </div>
-                </motion.div>
+                        <div className="space-y-4">
+                            <label className="font-mono text-[9px] uppercase tracking-[0.4em] opacity-70 dark:opacity-30 text-accent font-black">Mensaje</label>
+                            <textarea rows={4} required className="w-full bg-transparent border-b border-[var(--card-border)] py-3 focus:outline-none focus:border-accent transition-colors font-light resize-none" placeholder="Cuéntame sobre tu proyecto..." />
+                        </div>
+
+                        <button className="w-full flex items-center justify-between group p-8 border border-accent/30 hover:bg-accent hover:text-white transition-all duration-500 shadow-[0_0_20px_var(--glow-color)] hover:shadow-[0_0_40px_var(--glow-color)]">
+                            <span className="font-mono text-xs md:text-sm tracking-[0.3em] uppercase font-bold">{status || 'Enviar Mensaje'}</span>
+                            <Send size={18} className="group-hover:translate-x-2 transition-transform" />
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-                className="mt-16 text-center text-muted text-xs"
-            >
-                © {new Date().getFullYear()} Camilo Anthony · Desarrollo de sistemas web
-            </motion.p>
+            <div className="pt-20 flex flex-col md:flex-row justify-between items-center gap-8 font-mono text-[8px] uppercase tracking-[0.5em] opacity-50 dark:opacity-10">
+                <span>© 2026 Camilo Anthony</span>
+                <span>Desarrollado con React + Astro</span>
+            </div>
         </div>
     );
 }
