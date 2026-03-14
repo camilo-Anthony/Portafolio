@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { audioSystem } from '../lib/audio';
 import { cn } from '../lib/utils';
 import { Mail, Linkedin, ArrowRight, Send, Globe, Code2, Server, Cpu } from 'lucide-react';
+import JarvisHUD from './JarvisHUD';
 
 const sections = [
     { id: 'hero', Component: HeroContent },
@@ -13,25 +14,26 @@ const sections = [
 ];
 
 export default function ScrollContainer() {
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
-
     return (
         <div className="relative w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text)] selection:bg-accent selection:text-white transition-colors duration-500">
-            {/* Dynamic Cursor Light (Flashlight effect) */}
-            <div
-                className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
-                style={{
-                    background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, var(--glow-color), transparent 40%)`
-                }}
-            />
+            {/* ── Holographic Perspective Grid (GLOBAL FIXED BACKGROUND) ── */}
+            <div className="fixed inset-0 z-0 pointer-events-none" style={{ perspective: '300px' }}>
+                <div
+                    className="absolute left-[-20%] w-[140%] h-full"
+                    style={{
+                        transform: 'rotateX(65deg)',
+                        transformOrigin: 'center bottom',
+                        backgroundImage: `
+                            linear-gradient(var(--accent) 1px, transparent 1px),
+                            linear-gradient(90deg, var(--accent) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '50px 50px',
+                        opacity: 0.12,
+                        maskImage: 'linear-gradient(to top, black 0%, transparent 60%)',
+                        WebkitMaskImage: 'linear-gradient(to top, black 0%, transparent 60%)',
+                    }}
+                />
+            </div>
 
             {sections.map((section) => (
                 <SectionWrapper
@@ -125,7 +127,9 @@ function HeroContent() {
     }, []);
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 relative">
+            {/* Jarvis HUD Background */}
+            <JarvisHUD />
             <h1 className="text-5xl md:text-6xl lg:text-[6rem] font-black leading-[0.9] tracking-tighter uppercase italic pt-12">
                 {displayText.split(' ')[0]} <br />
                 <span className="opacity-30 dark:opacity-10">{displayText.split(' ')[1] || ''}</span>

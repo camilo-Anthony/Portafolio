@@ -20,15 +20,6 @@
   --glow-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-@keyframes border-beam {
-  0% {
-    offset-distance: 0%;
-  }
-
-  100% {
-    offset-distance: 100%;
-  }
-}
 
 /* ========================================
    DARK MODE (Default)
@@ -156,33 +147,7 @@ body {
    PREMIUM AESTHETICS (Animations & Cards)
    ======================================== */
 
-/* --- Custom Slim Scrollbar --- */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(120, 120, 120, 0.2);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--accent) 50%, transparent);
-  /* Accent color on hover */
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--accent) 80%, transparent);
-}
 
 /* --- Animations --- */
 @keyframes fadeUp {
@@ -237,22 +202,7 @@ body {
   animation: auroras 30s linear infinite;
 }
 
-/* Stagger delays for children */
-.delay-100 {
-  animation-delay: 100ms;
-}
 
-.delay-200 {
-  animation-delay: 200ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
-.delay-400 {
-  animation-delay: 400ms;
-}
 
 /* 
   Card Inner Glow Effect (Hologram Style)
@@ -289,14 +239,225 @@ body {
   /* Accent inner glow light */
 }
 
-/* --- Gradient Text Fix (Critical!) --- */
-.light .bg-gradient-to-br.from-white,
-.light .bg-gradient-to-r.from-white,
-.light .text-transparent.bg-clip-text {
-  background: linear-gradient(135deg, var(--text-strong) 0%, var(--muted) 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
+/* ========================================
+   JARVIS HUD — Arc Reactor + Holo Grid
+   ======================================== */
+
+/* --- Ring Rotations --- */
+@keyframes hudRotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hudRotateReverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Outer shell + outer arcs — slow clockwise */
+.hud-ring-outer {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 70s linear infinite;
+}
+
+/* Second ring arcs — slow clockwise */
+.hud-ring-dash {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 70s linear infinite;
+}
+
+/* Arc group 1 (outer + inner) — medium clockwise */
+.hud-ring-arc1 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 60s linear infinite;
+}
+
+/* Arc group 2 (second ring + core) — medium clockwise */
+.hud-ring-arc2 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 50s linear infinite;
+}
+
+/* Arc group 3 (mid ring + core) — slow counter-clockwise */
+.hud-ring-arc3 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateReverse 65s linear infinite;
+}
+
+/* Mid ring circles — very slow counter-clockwise */
+.hud-ring-inner {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateReverse 90s linear infinite;
+}
+
+/* Inner dashed ring — slow clockwise */
+.hud-ring-dash-inner {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 75s linear infinite;
+}
+
+/* Extra outer arc 1 (R=260) — very slow counter-clockwise */
+.hud-ring-ext1 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateReverse 80s linear infinite;
+}
+
+/* Extra outer arc 2 (R=240) — medium clockwise */
+.hud-ring-ext2 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateSlow 80s linear infinite;
+}
+
+/* Extra outer arc 3 (R=220) — medium counter-clockwise */
+.hud-ring-ext3 {
+  transform-origin: 200px 200px;
+  transform-box: view-box;
+  animation: hudRotateReverse 80s linear infinite;
+}
+
+/* --- Data Node Pulse --- */
+@keyframes hudNodePulse {
+
+  0%,
+  100% {
+    opacity: 0.15;
+    r: 2;
+  }
+
+  50% {
+    opacity: 0.6;
+    r: 4;
+  }
+}
+
+.hud-node-pulse {
+  animation: hudNodePulse 3s ease-in-out infinite;
+}
+
+.hud-node-pulse:nth-child(odd) {
+  animation-delay: 1.5s;
+}
+
+/* --- Holographic Perspective Grid --- */
+@keyframes hudGridScroll {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 0 -60px, 0 0;
+  }
+}
+
+.hud-grid {
+  background:
+    linear-gradient(rgba(245, 158, 11, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 158, 11, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(400px) rotateX(55deg);
+  transform-origin: center 130%;
+  mask-image: radial-gradient(ellipse 100% 70% at 50% 90%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 70% at 50% 90%, black 30%, transparent 75%);
+  animation: hudGridScroll 4s linear infinite;
+}
+
+/* --- Scan Line --- */
+@keyframes hudScanline {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
+}
+
+.hud-scanline {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  animation: hudScanline 8s ease-in-out infinite;
+  box-shadow: 0 0 15px var(--accent), 0 0 30px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* --- Radar Ping Pulse --- */
+@keyframes hudPing {
+  0% {
+    r: 10;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.3;
+  }
+
+  100% {
+    r: 200;
+    opacity: 0;
+  }
+}
+
+.hud-ping {
+  animation: hudPing 4s ease-out infinite;
+}
+
+/* --- Orbiting Particles --- */
+@keyframes hudParticleOrbit {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+/* --- Light Mode: tone down HUD --- */
+.light .hud-grid {
+  background:
+    linear-gradient(rgba(180, 83, 9, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 83, 9, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.light .hud-scanline {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.light .hud-data-flicker {
+  opacity: 0.15;
 }
 
 /* --- Borders --- */
@@ -330,16 +491,7 @@ body {
   border-color: color-mix(in srgb, var(--accent) 15%, transparent) !important;
 }
 
-/* --- Primary Button Fix --- */
-.light .bg-white.text-black {
-  background-color: var(--text-strong) !important;
-  color: var(--bg) !important;
-}
 
-.light .bg-white.text-black:hover {
-  background-color: var(--accent) !important;
-  color: white !important;
-}
 
 /* --- Hover States --- */
 .light .hover\:text-white:hover {
@@ -360,20 +512,6 @@ body {
   color: white !important;
 }
 
-/* --- Cards & Surfaces --- */
-.light .rounded-2xl,
-.light .rounded-xl {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-}
-
-.light .rounded-full.bg-white\/5 {
-  background-color: var(--surface) !important;
-  border: 1px solid var(--card-border) !important;
-}
-
-.light .rounded-md.bg-white\/5 {
-  background-color: var(--surface) !important;
-}
 
 /* --- Light Mode Readability Overrides --- */
 .light .opacity-10,
@@ -414,10 +552,6 @@ body {
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.06);
 }
 
-/* --- Green status dot (keep green) --- */
-.light .bg-green-500 {
-  background-color: #22C55E !important;
-}
 
 /* ========================================
    SCROLLBAR
